@@ -1,4 +1,4 @@
-from colorHandler import getTextureInfo, isModelFile, texture
+from colorHandler import getTextureInfo, isModelFile, texture, drawTexture
 
 collisionTri = []
 outputFileName = "output.txt" #lol
@@ -68,4 +68,12 @@ def printToFile(fileName):
 fileName = input("fileName: ")
 getTextureInfo(fileName)
 getCollisionTris(fileName)
+dumpAll = input("Dump all textures? ([y]/n)")
+if (dumpAll == "n"):
+    texName = input("Which Texture?: ")
+    drawTexture(texName)
+else:
+    for index in range(len(texture)):
+        texName = index
+        drawTexture(texName)
 printToFile(outputFileName)
