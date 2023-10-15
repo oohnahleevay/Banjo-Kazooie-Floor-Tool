@@ -1,14 +1,14 @@
 import math
-### I'll need these eventually to draw the textures ###
-# import numpy as np
-# from PIL import Image as im
+import numpy as np
+from PIL import Image as im
 
 texture = []
 colorFormat = {
     1:"CI4",
     2:"CI8",
     4:"RGBA5551",
-    8:"RGBA8888"
+    8:"RGBA8888",
+    16: "IA8"
 }
 
 #TODO: Move class defs to their own file
@@ -17,7 +17,10 @@ class Texture():
         self.Offset = Offset
         self.nextOffset = nextOffset
         self.type = colorFormat[Type]
-        self.colorBytes = Type/2
+        if (self.type == "IA8"):
+            self.colorbytes = 1
+        else:
+            self.colorBytes = Type/2
         self.x_dim = X
         self.y_dim = Y
 
@@ -69,10 +72,10 @@ def getTextureInfo(fileName):
             BufferY = int.from_bytes(file.read(1),"big")
             file.seek(6,1)
             if (tex + 1 == textureCount):
-                BufferNextOffset = maxBytes
+                BufferNextOffset = maxBytes - (textureCount * 0x10 + 8)
             else:
                 BufferNextOffset = int.from_bytes(file.read(4),"big")
-                file.seek(-4,1)
+                file.seek(-4, 1)
             texture.append(Texture(BufferOffset, BufferNextOffset, BufferType, BufferX, BufferY))
         for tx in texture:
             tx.pixel = []
@@ -84,13 +87,17 @@ def getTextureInfo(fileName):
                 for color in range(16):
                     tx.palette.append(int.from_bytes(file.read(2),"big"))
             elif (tx.type == "CI8"):
-                for color in range(16):
+                tx.pixelCount = length - 512
+                tx.palette = []
+                for color in range(256):
                     tx.palette.append(int.from_bytes(file.read(2),"big"))
+            elif (tx.type == "IA8"):
+                tx.pixelCount = length
             else:
                 tx.pixelCount = length / tx.colorBytes
             for pix in range(int(tx.pixelCount)):
-                BufferPosY = math.floor(pix / 32)
-                BufferPosX = math.fmod(pix, 32)
+                BufferPosY = int(math.trunc(pix / tx.x_dim))
+                BufferPosX = int(math.fmod(pix, tx.x_dim))
                 splitRGBA = [0,0,0,0]
                 if (tx.type == "CI4"):
                     readByte = int(math.fmod(pix, 2))
@@ -98,7 +105,7 @@ def getTextureInfo(fileName):
                         byte = int.from_bytes(file.read(1),"big")
                     nibble = [0,0]
                     nibble[0] = int((byte & 0xF0) / 0x10)
-                    nibble[1] = (byte & 0xF)
+                    nibble[1] = byte & 0xF
                     RGBA = tx.palette[nibble[readByte]]
                     getRGBA(RGBA, splitRGBA)
                 elif (tx.type == "CI8"):
@@ -113,4 +120,26 @@ def getTextureInfo(fileName):
                     splitRGBA[1] = int.from_bytes(file.read(1), "big")
                     splitRGBA[2] = int.from_bytes(file.read(1), "big")
                     splitRGBA[3] = int.from_bytes(file.read(1), "big")
+                elif (tx.type == "IA8"):
+                    byte = int.from_bytes(file.read(1), "big")
+                    nibble = [0, 0]
+                    nibble[0] = int((byte & 0xF0) / 10)
+                    nibble[1] = byte & 0xF
+                    Intensity = (nibble[0] * 0xFF) / 0xF
+                    Alpha = (nibble[1] * 0xFF) / 0xF
+                    splitRGBA = [Intensity, Intensity, Intensity, Alpha]
                 tx.pixel.append(Pixel(pix, BufferPosX, BufferPosY, splitRGBA[0], splitRGBA[1], splitRGBA[2], splitRGBA[3]))
+
+def drawTexture(ID):
+    try:
+        ID = int(ID)
+    except ValueError:
+        print("Give me a number.")
+        return
+    texArray = np.zeros((texture[ID].y_dim, texture[ID].x_dim, 4), 'uint8')
+    for pix in texture[ID].pixel:
+        if pix.positionY < texture[ID].y_dim:
+            texArray[pix.positionY, pix.positionX] = [pix.red, pix.green, pix.blue, pix.alpha]
+    showTexture = im.fromarray(texArray, mode="RGBA")
+    showTexture.save("./textureOut/Texture{}.png".format(ID))
+    return
