@@ -41,7 +41,6 @@ def promptMapFile():
 
 
 def showImportProgress(fileName):
-    working = False
     complete = False
 
     layout = [
@@ -209,7 +208,7 @@ def showTriViewer(fileName):
             window.perform_long_operation(lambda: storeUpdatedCollisions(), "-STORED-")
 
         if event == "Save":
-            saved = saveUpdatedCollisions()
+            saved = saveUpdatedCollisions(fileName)
             if saved: sg.Window("Save Successful", [[sg.Text("Saved!", font=("Verdana","12"))], [sg.Button("OK", bind_return_key=True)]], element_justification="c", element_padding=(150, 7), modal=True).read(close=True)
 
         if event == "Open":
