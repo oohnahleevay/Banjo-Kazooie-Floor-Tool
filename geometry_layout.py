@@ -1,4 +1,3 @@
-from geo_objects import *
 from struct import *
 
 noCollisionTri = []
@@ -37,7 +36,7 @@ def getGeometryLayouts(fileName):
                 drawNearerOnly = bool(int.from_bytes(file.read(2), "big") & 1)
                 childOneOffset = int.from_bytes(file.read(2), "big")
                 childTwoOffset = int.from_bytes(file.read(4), "big")
-                #print(commandOffset, commandType, length, childOne, childTwo, drawNearerOnly, childOneOffset, childTwoOffset)
+                print(commandOffset, commandType, length, childOne, childTwo, drawNearerOnly, childOneOffset, childTwoOffset)
             elif commandType == "LOAD DL":
                 length = int.from_bytes(file.read(4), "big")
                 commandIndex = int.from_bytes(file.read(2), "big")
@@ -52,7 +51,7 @@ def getGeometryLayouts(fileName):
                     setTriAsLOD(commandIndex, file)
                     glIsLOD = False
                 file.seek(-4, 1)
-                #print(commandOffset, commandType, length, hex(commandIndex), hex(triCount))
+                print(commandOffset, commandType, length, hex(commandIndex), hex(triCount))
             elif commandType == "LOD":
                 length = int.from_bytes(file.read(4), "big")
                 (maxDistance, minDistance, testX, testY, testZ) = unpack(">5f", file.read(20))
@@ -63,7 +62,17 @@ def getGeometryLayouts(fileName):
                 if minDistance > 0.0:
                     glIsLOD = True
 
-                #print(commandOffset, commandType, length, distRange, testCoords, hex(glOffset))
+                print(commandOffset, commandType, length, distRange, testCoords, hex(glOffset))
+            elif commandType == "SELECTOR":
+                length = int.from_bytes(file.read(4), "big")
+                childCount = int.from_bytes(file.read(2), "big")
+                selectorIndex = int.from_bytes(file.read(2), "big")
+                children = []
+                for child in range(childCount):
+                    children.append(int.from_bytes(file.read(4), "big"))
+
+                print(commandOffset, commandType, length, childCount, selectorIndex)
+                print(children)
             elif commandType == "DRAW DISTANCE":
                 length = int.from_bytes(file.read(4), "big")
                 negativeDrawX = int.from_bytes(file.read(2), "big", signed=True)
@@ -75,7 +84,7 @@ def getGeometryLayouts(fileName):
                 positiveDrawZ = int.from_bytes(file.read(2), "big", signed=True)
                 positiveDraw = [positiveDrawX, positiveDrawY, positiveDrawZ]
                 unk20 = hex(int.from_bytes(file.read(4), "big"))
-                #print(commandOffset, commandType, length, negativeDraw, positiveDraw, unk20)
+                print(commandOffset, commandType, length, negativeDraw, positiveDraw, unk20)
             elif commandType == "UNKNOWN 0xF":
                 length = int.from_bytes(file.read(4), "big")
                 headerLength = int.from_bytes(file.read(2), "big")
@@ -86,12 +95,12 @@ def getGeometryLayouts(fileName):
                     unkList.append(int.from_bytes(file.read(1),"big"))
                 endOfHeader = (headerLength - 12) - (unkCount)
                 file.seek(endOfHeader, 1)
-                #print(commandOffset, commandType, length, headerLength, unkCount, unkB, unkList)
+                print(commandOffset, commandType, length, headerLength, unkCount, unkB, unkList)
             elif commandType == "UNKNOWN 0x10":
                 length = int.from_bytes(file.read(4), "big")
                 unkC = int.from_bytes(file.read(4), "big")
                 file.seek(4, 1)
-                #print(commandOffset, commandType, length, unkC)
+                print(commandOffset, commandType, length, unkC)
 def setTriAsLOD(command, file):
     returnAddress = file.tell()
     file.seek(0xC, 0)

@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 from display_list import displayTri
 from vertex_handler import vertex
 from GUI import promptMapFile, showTriViewer
-=======
-from colorHandler import getTextureInfo, isModelFile, texture, drawTexture
->>>>>>> c5af575242049bd4f25f67c518d5d6689df7c0e9
 
 outputFileName = "output.txt" #lol
 
@@ -23,24 +19,9 @@ def printToFile(fileName):
             #    file.write("Texture #{}: \n\t Color Type: {}: \n".format(tex_count, tex.type))
             #    tex_count += 1
             #    for pix in tex.pixel:
-            #        file.write("\t Pixel ({}, {}): {}, {}, {}, {} \n".format(pix.positionX, pix.positionY, pix.red, pix.green, pix.blue, pix.alpha))
-
-<<<<<<< HEAD
-
+            #        file.write("\t Pixel ({}, {}): {}, {}, {}, {} \n".format(pix.positionX, pix.positionY, pix.red, pix.green, pix.blue, pix.alpha)
 fileName, complete = promptMapFile()
 if fileName and complete:
     showTriViewer(fileName)
-=======
-fileName = input("fileName: ")
-getTextureInfo(fileName)
-getCollisionTris(fileName)
-dumpAll = input("Dump all textures? ([y]/n)")
-if (dumpAll == "n"):
-    texName = input("Which Texture?: ")
-    drawTexture(texName)
-else:
-    for index in range(len(texture)):
-        texName = index
-        drawTexture(texName)
-printToFile(outputFileName)
->>>>>>> c5af575242049bd4f25f67c518d5d6689df7c0e9
+
+

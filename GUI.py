@@ -41,7 +41,6 @@ def promptMapFile():
 
 
 def showImportProgress(fileName):
-    working = False
     complete = False
 
     layout = [
