@@ -217,8 +217,10 @@ def showTriViewer(fileName):
                 clearTris()
                 showImportProgress(fileName)
                 window.refresh()
-                window["-TRILIST-"].update(set_to_index=0)
                 window.write_event_value("-TRILIST-", displayTri)
+                window["-TRILIST-"].update(set_to_index=0)
+                window["-FILTER-"].update(value=False)
+                window["-FILTER ID-"].update(values=[i for i in range(len(texture))], set_to_index=0)
 
 
     window.close(); del window

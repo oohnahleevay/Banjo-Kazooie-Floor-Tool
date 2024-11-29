@@ -79,3 +79,9 @@ class Vertex:
         self.alpha = A
 
         self.hex_string = hex(self.red)[2:] + hex(self.green)[2:] + hex(self.blue)[2:] + hex(self.alpha)[2:]
+
+class Bone:
+    def __init__(self, ID, DL_index, unkA):
+        self.index = ID
+        self.displayList = DL_index * 8
+        self.unkA = unkA

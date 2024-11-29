@@ -37,6 +37,7 @@ def getVertices(fileName, window:sg.Window):
             BufferB = int.from_bytes(file.read(1), "big", signed = True)
             BufferA = int.from_bytes(file.read(1), "big", signed = True)
             vertex.append(Vertex(BufferX, BufferY, BufferZ, BufferU, BufferV, BufferR, BufferG, BufferB, BufferA))
-            if vtx % (int(vertexCount / 10)) == 0:
-                window["-PROGRESS-"].update(vtx)
-                window["-COUNT-"].update("{}/{} vertices".format(vtx, vertexCount))
+            if int(vertexCount / 10) >= 1:
+                if vtx % (int(vertexCount / 10)) == 0:
+                    window["-PROGRESS-"].update(vtx)
+                    window["-COUNT-"].update("{}/{} vertices".format(vtx, vertexCount))
