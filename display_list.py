@@ -70,23 +70,26 @@ def getDisplayList(fileName):
         file.seek(displayListOffset, 0)
         displayCommandCount = int.from_bytes(file.read(4), "big")
         file.seek(4, 1)
-        vertex_buffer = []
+        vertex_buffer = np.zeros(32, "int")
         currentTextureOffset = 0xFFFFFF
         currentCommand = 0
         for command in range(displayCommandCount):
             commandType = F3DEX_command[int.from_bytes(file.read(1), "big")]
             if commandType == "G_DL":
                 displayList = True
-                vertex_buffer = np.zeros(200, "int")
+                #vertex_buffer = np.zeros(32, "int")
                 file.seek(7, 1)
+
             elif commandType == "G_ENDDL":
                 displayList = False
                 currentTextureOffset = 0xFFFFFF
                 file.seek(7, 1)
+
             elif commandType == "G_SETTIMG":
                 file.seek(3, 1)
                 targetedSegment = int.from_bytes(file.read(1), "big")
                 currentTextureOffset = int.from_bytes(file.read(3), "big")
+
             elif commandType == "G_VTX":
                 vertexStart = int.from_bytes(file.read(1), "big")
                 vertexReadCount = (int.from_bytes(file.read(2), "big") & 0xFC00) / 0x400
@@ -95,7 +98,8 @@ def getDisplayList(fileName):
 
                 for vtx in range(int(vertexReadCount)):
                     vertex_buffer[vtx] = vertexRelOffset / 0x10 + vtx + vertexStart
-                #print(vertex_buffer)
+                print(vertex_buffer)
+
             elif commandType == "G_TRI2":
                 for glcommand in noCollisionTri:
                     if currentCommand == glcommand:
@@ -113,6 +117,7 @@ def getDisplayList(fileName):
                 for i in range(3):
                     currentTriVertices[i] = int(int.from_bytes(file.read(1), "big") /2)
                 getDisplayTris(currentTextureOffset, vertex_buffer, currentTriVertices, triIsLOD)
+
             elif commandType == "G_TRI1":
                 for glcommand in noCollisionTri:
                     if currentCommand == glcommand:
@@ -127,9 +132,10 @@ def getDisplayList(fileName):
                 for i in range(3):
                     currentTriVertices[i] = int(int.from_bytes(file.read(1), "big") /2)
                 getDisplayTris(currentTextureOffset, vertex_buffer, currentTriVertices, triIsLOD)
+
             else:
-                file.seek(7, 1)
-                #print(hex(file.tell() - 1), commandType, hex(int.from_bytes(file.read(7), "big")))
+                #file.seek(7, 1)
+                print(hex(file.tell() - 1), commandType, hex(int.from_bytes(file.read(7), "big")))
             currentCommand += 1
 
 def getDisplayTris(display_texture_offset, vertex_buffer, display_tri_vertices, tri_is_lod):
@@ -138,12 +144,12 @@ def getDisplayTris(display_texture_offset, vertex_buffer, display_tri_vertices, 
         if tex.Offset <= display_texture_offset < tex.nextOffset:
             displayTextureID = texture.index(tex)
     if displayTextureID == None:
-        print("something went wrong")
-    #print(display_texture_offset, displayTextureID)
+        print("Vertex Color")
+    #print(hex(display_texture_offset), displayTextureID)
     displayTriVertex = [0, 0, 0]
     for vtx in display_tri_vertices:
         displayTriVertex[display_tri_vertices.index(vtx)] = vertex_buffer[vtx]
-    #print(display_tri_vertices, displayTriVertex)
+    print(display_tri_vertices, displayTriVertex)
     if tri_is_lod:
         displayTri.append(DisplayTri(displayTextureID, displayTriVertex, tri_is_lod, None))
     else:
@@ -164,10 +170,10 @@ def matchCollisionTri(window:sg.Window):
                 disp_tri.unk = collisionTri[disp_tri.collision].unk
                 collisionTri[disp_tri.collision].matched = True
             except ValueError:
+                #print("{} ({})".format(disp_tri.VertexLookup, disp_tri.index))
                 continue
-            #if disp_tri.collision is None:
-                #print("disp_tri not matched!: {} ({})".format(disp_tri.VertexLookup, disp_tri.index))
-        if disp_tri.index % (int(len(displayTri) / 10)) == 0:
-            window["-PROGRESS-"].update(disp_tri.index)
-            window["-COUNT-"].update("{}/{} matched".format(disp_tri.index, len(displayTri)))
+        if int(len(displayTri) / 10) >= 1:
+            if disp_tri.index % (int(len(displayTri) / 10)) == 0:
+                window["-PROGRESS-"].update(disp_tri.index)
+                window["-COUNT-"].update("{}/{} matched".format(disp_tri.index, len(displayTri)))
 

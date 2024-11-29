@@ -112,6 +112,8 @@ def drawTexture(ID):
     except ValueError:
         print("That's not a number.")
         return
+    except TypeError:
+        return
     if ID >= len(texture):
         print("Invalid Texture ID.")
         return
@@ -129,6 +131,8 @@ def dumpTexture(ID):
         ID = int(ID)
     except ValueError:
         print("That's not a number.")
+        return
+    except TypeError:
         return
     if ID >= len(texture):
         print("Invalid Texture ID.")

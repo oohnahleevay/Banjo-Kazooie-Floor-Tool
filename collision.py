@@ -57,6 +57,7 @@ def getCollisionTris(fileName, window:sg.Window):
             BufferC = int.from_bytes(file.read(2),"big")
             unk8 = int.from_bytes(file.read(2), "big")
             FlagBuffer = int.from_bytes(file.read(4),"big")
+            print(tri, hex(FlagBuffer))
             collisionTri.append(CollisionTri(BufferA, BufferB, BufferC, FlagBuffer, unk8))
             if tri % (int(triCount / 5)) == 0:
                 window["-PROGRESS-"].update(tri)
