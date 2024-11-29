@@ -7,6 +7,8 @@ def getVertices(fileName, window:sg.Window):
     with open(fileName, "rb") as file:
         file.seek(0x10)
         vertexSetupOffset = int.from_bytes(file.read(4), "big")
+        file.seek(0x32, 0)
+        vertexCount = int.from_bytes(file.read(2), "big")
         file.seek(vertexSetupOffset, 0)
 
         #get these values and keep them for later
@@ -20,7 +22,8 @@ def getVertices(fileName, window:sg.Window):
         maxObjectRange = int.from_bytes(file.read(2), "big", signed = True)
         unk10 = int.from_bytes(file.read(2), "big", signed = True)
         unk12 = int.from_bytes(file.read(2), "big", signed = True)
-        vertexCount = int.from_bytes(file.read(2), "big")
+        file.seek(2, 1)
+        #vertexCount = int.from_bytes(file.read(2), "big")
         unk16 = int.from_bytes(file.read(2), "big", signed = True)
         #print((drawMinX, drawMinY, drawMinZ), (drawMaxX, drawMaxY, drawMaxZ), [minObjectRange, maxObjectRange], unk10, unk12, vertexCount, unk16)
         window["-PROGRESS-"].update(0, vertexCount)
