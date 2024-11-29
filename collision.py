@@ -11,6 +11,8 @@ def getCollisionTris(fileName, window:sg.Window):
         if(collisionOffset == 0):
             print("This file has no collisions!")
             return
+        file.seek(0x30, 0)
+        triCount = int.from_bytes(file.read(2), "big")
         file.seek(collisionOffset,0)
         file.seek(16, 1)
 
@@ -18,8 +20,8 @@ def getCollisionTris(fileName, window:sg.Window):
         unknownCount = int.from_bytes(file.read(2),"big")
         unknownSize = unknownCount * 4
         file.seek(2, 1)
-
-        triCount = int.from_bytes(file.read(2),"big")
+        file.seek(2, 1)
+        #triCount = int.from_bytes(file.read(2),"big")
         window["-PROGRESS-"].update(0, triCount)
         file.seek(2,1)
 
